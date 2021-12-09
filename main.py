@@ -1,126 +1,95 @@
 import time
-
 _author_ = "Trevor Chessnoe"
 # Professor Michael Osheroff
 # Course: COP1500
 
 
 '''
-todo: 
+todo:
+* fix quit value error
+* dec to bin converter
 * fix PEP 8 issues
     * Add descriptive paragraph below each func
     * research PEP 8 issues 
-* add means of exiting 
-    * to last func
-* if yourName is q prompt user if that is their name
-    or if they want to quit
-* fix broken and unncessary returns
-* add try-excepts for invalid inputs 
-* add decimal to binary converter
-* add time open counter
+'''
+'''
+ways to increase robustness
+* add detection for valid operators with spaces
+or other formatting issues 
+* add detection for use of multiple operators
 '''
 
 
 # tc stands for test code
-# Main calculator interface:
-# Looks at user input for 4 strings.
-# Use 'calc' to use the calculator
-# or 'help' for more information
-# or 'bin' for binary decimal conversion
-# Entering 'q' quits the program
+def invalidBinMsg():
+    print(
+        "Invalid input: "
+        "Some of your numbers "
+        "are not binary. "
+        "Please enter 0's or 1's only. "
+            )
 
 
-####bin-dec converter defs#####
-def strToList(string):
-    # initializes index value
-    index = 0
-    List = []
-    # converts string length to an int b4 iterating
-    str_length = len(string)
-    for index in range(str_length):
-        str_index = string[index]
-        List.append(str_index)
-        index = index + 1
-    return List
+def invalidNumMsg():
+    print(
+        "Invalid input: Input "
+        "must only contain numbers. "
+        "Please enter 0's or 1's only."
+            )
 
 
-def binToDec(List):
-    # initializes accumulator
-    deci_total = 0
-    # power of right most digit is 0
-    power = 0
-    # number of for loop executions
-    iterations = 0
-    # starts one before last character
-    index = len(List) - 1
-    for digit in List:
-        # sets digit to value of integer at 1st index
-        listDigit = int(List[index])
-        # transforms list values so they can be added
-        decDigit = listDigit * (2 ** power)
-        # adds converted values to accumulator
-        deci_total = deci_total + decDigit
-        # decrements index of binList
-        index = index - 1
-        # increments exponent
-        power = power + 1
-    print("Decimal value:", deci_total)
-    # returns to call in binGet
-    return
-
-
-def binGet():
-    # initialize variables used in binGet
-    binInput = ""
-    isNum = "True"
-    isBinary = "True"
-    # Loop until user inputs "q"
-    while binInput != "q" and binInput != "Q":
-        binInput = input("Enter binary number or "
-                         "enter 'q' to quit: ")
-        # when the user types q return to last call
-        # (in calcMenu)
-        if binInput == "q" or binInput == "Q":
-            return
-        # converts binary input string into list,
-        # assigns to List
-        List = strToList(binInput)
-        # if any item in the list cannot be converted
-        # to an integer isNum is set to "False"
+def binCheck(input):
+    failedCheck = None
+    currentChar = ""
+    checkIndex = 0
+    validInputs = {'0','1'}
+    inputSet = set(input)
+    if input == "q" or input == "Q":
+        return
+    # set() gets unordered list of characters
+    if (inputSet != validInputs and
+        inputSet != {'0'} and
+        inputSet != {'1'}):
         try:
-            index = 0
-            numcheck = List[index]
-            for item in List:
-                int(numcheck)
-                index = index + 1
+            for character in input:
+                currentChar = input[checkIndex]
+                int(currentChar)
+                checkIndex = checkIndex + 1
+            invalidBinMsg()
+            failedCheck = True
+            return failedCheck
         except:
-            isNum = "False"
-        # if a number that is NOT 0 or 1 is in the List
-        # then the number is not binary
-        if not "0" or not "1" in List:
-            isBinary = "False"
-            # if a list contains a non-number and
-            # non-binary digit
-            # ask for only numbers
-            if isNum == "False" and isBinary == "False":
-                print("Invalid input: Input "
-                      "must only contain numbers. "
-                      "Please enter 0's or 1's only.")
-            # if a list only contains numbers but some
-            # are not binary
-            # ask for only binary input
-            elif isNum == "True" and isBinary == "False":
-                print("Invalid input: "
-                      "Some of your numbers "
-                      "are not binary.\n"
-                      "Please enter 0's or 1's only. ")
-        else:
-            # print(List) #tc
-            # convert list from binGet into decimal
-            binToDec(List)
+            invalidNumMsg()
+        failedCheck = True
+    else:
+        failedCheck = False
+    return failedCheck
+# Checks binary input for non-binary characters
+# returns value to converter after assessment
 
-
-#### end of bin-dec converter defs#####
+def binToDec():
+    binaryInput = ""
+    while binaryInput != "q" and binaryInput != "Q":
+        quitInfo()
+        binaryInput = input("Binary value: ")
+        failedCheck = binCheck(binaryInput)
+        if not failedCheck:
+            stringEnd = len(binaryInput) - 1
+            index = stringEnd
+            power = 0
+            decimalValue = 0
+            for binaryChar in binaryInput:
+                binaryChar = binaryInput[index]
+                binaryDigit = int(binaryChar)
+                decimalDigit = binaryDigit * (2 ** power)
+                decimalValue = (decimalValue +
+                decimalDigit)
+                index = index - 1
+                power = power + 1
+            print("Decimal value:", decimalValue)
+# Reads each digit of binary input string in reverse
+# Multiplies each digit by increasing powers of 2
+# and adds them to the accumulator
 
 def calcQuiz():
     # total_pts is number of correct answers
@@ -146,8 +115,8 @@ def calcQuiz():
     else:
         print("Incorrect.")
 
-    Q4 = input("7 * 4 -2 = ")
-    if int(Q4) == 26:
+    Q4 = input("7 * (4 - 2) = ")
+    if int(Q4) == 14:
         print("Correct!")
         total_pts = total_pts + 1
     else:
@@ -167,21 +136,21 @@ def calcQuiz():
     else:
         print("Incorrect.")
 
-    Q7 = input("(6 -14) // 3 = ")
+    Q7 = input("7 // 3 = ")
     if int(Q7) == -3:
         print("Correct!")
         total_pts = total_pts + 1
     else:
         print("Incorrect.")
 
-    Q8 = input("22*4-11//10 = ")
+    Q8 = input("(22*4) - 11= ")
     if int(Q8) == 87:
         print("Correct!")
         total_pts = total_pts + 1
     else:
         print("Incorrect.")
 
-    Q9 = input("(8%3)/(50%3) = ")
+    Q9 = input("2/(11%3) = ")
     if int(Q9) == 1:
         print("Correct!")
         total_pts = total_pts + 1
@@ -193,6 +162,11 @@ def calcQuiz():
 def quitInfo():
     print("Enter 'q' to quit at any time.")
 
+def quitMsg():
+    print("Program quit successfully.")
+
+def returnMsg():
+    print("Returning to last screen")
 
 def introMessage():
     print("Welcome to", _author_ + "'s",
@@ -202,9 +176,12 @@ def introMessage():
 
 
 def basicInfo():
-    print("Type 'calc' to switch to calculator mode.\n"
-          "Type 'help' for information.\n"
-          "Type 'bin' for a decimal-binary converter.\n")
+    print(
+        "Menu Options:\n"
+        "1. calculator\n"
+        "2. help\n"
+        "3. binary-decimal converter \n"
+            )
 
 
 def nameGet():
@@ -214,7 +191,7 @@ def nameGet():
         yourName = input("What is your name?: ")
         nameLength = len(yourName)
         if yourName == "q" or yourName == "Q":
-            return
+            exit()
         if nameLength <= 0:
             print("I didn't catch that.\n"
                   "Please try again.")
@@ -227,53 +204,95 @@ def nameGet():
 
 
 def calcMenu(yourName):
-    calcInput = ""
-    while calcInput != "q" and calcInput != "Q":
+    menuInput = ""
+    operationsList = ["+", "-", "*", "/", "**", "//",
+                      "%"]
+    menuOptions = ["1","2","3"]
+    while menuInput != "q" and menuInput != "Q":
         # prompts the user to select a menu option
         basicInfo()
-        calcInput = input("Enter your choice: ")
-        if calcInput == "calc":
+        menuInput = input("Enter 1, 2, or 3: ")
+        if menuInput == menuOptions [0]:
             print(yourName, "entered CALC mode. ")
-            regCalc()
-        # If the user inputs the word 'help';
+            calculator(operationsList)
+        # If the user inputs the word 'help'
         # they receive information on operators
         # used if bc elif never allows help to run
-        if calcInput == "help":
+        elif menuInput == menuOptions [1]:
             print(yourName, "entered HELP mode")
             quitInfo()
-            calcHelp()
-        if calcInput == "bin":
+            calcHelp(operationsList)
+        elif menuInput == menuOptions [2]:
             print(
                 yourName,
                   "entered binary converter.\n"
-                  "Please only enter "
-                  "numbers that contain zeroes or ones "
+                  "Please enter "
+                  "numbers that only contain"
+                  " zeroes or ones"
                   )
             # goes to function for binary input
-            binGet()
-        elif calcInput == "q" or "Q":
-            return
+            binToDec()
+        elif menuInput == "q" or menuInput == "Q":
+                quitMsg()
         else:
-            print("Invalid option: Please try again.")
-
+            print("Invalid option: "
+                  "Please type 1, 2, or 3\n")
+    return operationsList
 
 def main():
-    # assigns return of nameGet to variable in
-    # scope where it is used
     introMessage()
     yourName = nameGet()
     calcMenu(yourName)
+# displays greeeting
+# gets name with nameGet function
+
+def dotCheck(string,validList):
+    if "." in string:
+        if any(elements in string for elements in validList):
+            print("Invalid Format: Try typing that again"
+                  " without a dot.\n")
+            print("updated vbf to true")
+        else:
+            print("Invalid option: Please try again.\n")
 
 
-def calcHelp():
-    help_operator = ""
+def bracketCheck(string,validList):
+    invalidMsgDisplayed = False
+    if "[" or "]" in string:
+        if any(elements in string for elements in validList):
+            print("Invalid Operator: Try typing that again"
+                  " without brackets.\n")
+            # print("updated vbf to true")
+        else:
+            print("Invalid Operator and"
+                  " Formatting: Please try again.\n")
+            # print("updated vbf to false")
+        invalidMsgDisplayed = True
+    return invalidMsgDisplayed
+    # Checks if the input contains square brackets
+    # and if the input contains a valid operator
+    # If both conditions are true,
+    # Ask the user to remove the brackets
+    # If the input contains brackets but does NOT
+    # contain a valid operator then
+    # print a different message
+    # Creates variable to make sure multiple
+    # error messages are not displayed
+
+
+def calcHelp(operationsList):
+    help_operator = None
+    operationsList = ["+", "-", "*", "/", "**", "//",
+                      "%"]
     while help_operator != "q" and help_operator != "Q":
         print(
             "Which operator would you like to know "
               "more about?"
                 )
-        print("[+] [-] [*] [/] [**] [/]")
+        print("[+] [-] [*] [/] [**] [//]")
         help_operator = input("Enter your choice: ")
+        invalidMsgDisplayed = bracketCheck(
+            help_operator, operationsList)
         if help_operator == "+":
             print("(+) addition:",
                   "The sum of the numbers is taken.")
@@ -307,15 +326,15 @@ def calcHelp():
         elif help_operator == "q" or help_operator == "Q":
             return
         else:
-            print(
-                "Invalid Operator: Please try again.")
-    print("\n")
+            if not invalidMsgDisplayed:
+                print("Invalid Operator: "
+                      "Please try again.\n ")
 
 
-def regCalc():
+def calculator(operationsList):
     strNum1 = ""
     strNum2 = ""
-    result = 0
+    result = "no result"
     while strNum1 != "q" and strNum2 != "q":
         quitInfo()
         strNum1 = (input("\n""Enter first number: "))
@@ -328,6 +347,8 @@ def regCalc():
                   "numbers.")
             return
         calcOperator = input("Enter the operation: ")
+        bracketCheck(calcOperator,
+                     operationsList, )
         strNum2 = input("And the second number?: ")
         if strNum2 == "q" or strNum2 == "Q":
             return
@@ -353,10 +374,11 @@ def regCalc():
                 result = num1 // num2
             elif calcOperator == "%":
                 result = num1 % num2
-            else:
-                print("Invalid operator: Please try again.")
+            elif calcOperator not in operationsList:
+                print("Invalid Operator: Please try again.")
+                return
         # if user tries to divide by zero call zeroDiv
-        except ZeroDivisionError as e:
+        except ZeroDivisionError:
             zeroDiv(num1)
         print(result)
     calcMenu(yourName)
@@ -368,15 +390,18 @@ def zeroDiv(num1):
     print(
         invalid_num, "Error: Divide by Zero\n"
                        "Activating "
-                       "ENJOYABLE DIVERSION.exe\n",
-          sep = "")
+                       "ENJOYABLE DIVERSION", sep = ""
+            )
     # creates five dots in three seconds
     for iteration in range(5):
-        print(".")
-        time.sleep(0.6)
-
+        print(".", end = "")
+        time.sleep(0.4)
     # assigns number of correct answers to return
     # of quiz function
+    print("\nThis quiz has 10 questions. \n "
+          "There is no time limit.\n "
+          "All answers are whole numbers.\n "
+          "Good luck!")
     total_pts = calcQuiz()
     print("You got", total_pts, "/ 10 answers correct")
     return
